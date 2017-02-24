@@ -1,0 +1,18 @@
+{
+  "name": "cloudbleed-scraper",
+  "version": "1.0.0",
+  "description": "parses a list of domains and determines if they are behind cloudflare",
+  "main": "scrape.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Xaekai",
+  "license": "MIT",
+  "repository" : {
+    "type" : "git"
+  , "url" : "https://github.com/Xaekai/cloudbleed-scraper.git"
+  },
+  "dependencies": {
+    "request": "^2.79.0"
+  }
+}
