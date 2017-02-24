@@ -87,7 +87,7 @@ function scrapeWorker(){
             negative.writeEntry(domain)
         }
 
-        onFinish();
+        return onFinish();
     })
     .setTimeout(6000, ()=>{
         console.error(`Error: ${domain} took too long to respond`);
@@ -116,5 +116,13 @@ readline.createInterface({
         console.info(`Starting worker ${i}`);
         process.nextTick(scrapeWorker);
     }
+
+    // Once we start, respond to SIGUSR2 to state how many domains are left
+    process.on('SIGUSR2', ()=>{
+        const ColorRed = '\x1b[31m';
+        const ColorReset = '\x1b[0m';
+        console.log(`${ColorRed} There are ${domains.length} left to check ${ColorReset}`);
+    });
+
 });
 
