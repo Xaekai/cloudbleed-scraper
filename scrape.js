@@ -46,10 +46,6 @@ class fileWriter{
     }
 }
 
-var positive = new fileWriter(path.join(path.resolve(process.cwd()), POSITIVE));
-var negative = new fileWriter(path.join(path.resolve(process.cwd()), NEGATIVE));
-var uncheckt = new fileWriter(path.join(path.resolve(process.cwd()), UNCHECKT));
-
 function scrapeWorker(){
     function onFinish(){
         if(domains.length){
@@ -100,6 +96,11 @@ function scrapeWorker(){
     .end();
 }
 
+
+var positive = new fileWriter(path.join(path.resolve(process.cwd()), POSITIVE));
+var negative = new fileWriter(path.join(path.resolve(process.cwd()), NEGATIVE));
+var uncheckt = new fileWriter(path.join(path.resolve(process.cwd()), UNCHECKT));
+
 var domains = [];
 
 console.log('Reading file');
@@ -126,3 +127,9 @@ readline.createInterface({
 
 });
 
+// Cleanup
+process.on('SIGINT', ()=>{
+    positive.close();
+    negative.close();
+    uncheckt.close();
+});
