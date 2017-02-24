@@ -11,8 +11,5 @@
   "repository" : {
     "type" : "git"
   , "url" : "https://github.com/Xaekai/cloudbleed-scraper.git"
-  },
-  "dependencies": {
-    "request": "^2.79.0"
   }
 }
