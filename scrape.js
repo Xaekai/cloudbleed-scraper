@@ -13,12 +13,12 @@ const path = require('path');
 const https = require('https');
 const readline = require('readline');
 
-const DOMAINS = 'domains.txt'
-const POSITIVE = 'postive.log'
-const NEGATIVE = 'negative.log'
-const UNCHECKT = 'unchecked.log'
+const DOMAINS = process.env.SCRAPEFILE || 'domains.txt';
+const POSITIVE = 'postive.log';
+const NEGATIVE = 'negative.log';
+const UNCHECKT = 'unchecked.log';
 
-const numWorkers = 4;
+const numWorkers = 8;
 
 class fileWriter{
     constructor(filename){
@@ -48,6 +48,7 @@ class fileWriter{
 
 function scrapeWorker(){
     function onFinish(){
+        if(finished){ return } finished = true;
         if(domains.length){
             return process.nextTick(scrapeWorker); 
         } else { 
@@ -57,16 +58,16 @@ function scrapeWorker(){
     }
 
     function onProblem() {
-        if (issue > 0) return; issue++;
+        if (issue > 0){ return } issue++;
         uncheckt.writeEntry(domain);
-        onFinish();
+        return onFinish();
     }
 
     if(!domains.length){ 
         return onFinish();
     }
     let domain = domains.shift();
-    let issue = 0;
+    let issue = 0; let finished = false;
 
     // Blank line
     if(!domain.length){
@@ -146,10 +147,9 @@ readline.createInterface({
         console.log(`${ColorRed} There are ${domains.length} left to check ${ColorReset}`);
     });
 
+    process.on('SIGINT', ()=>{
+        cleanup();
+        process.exit(1);
+    });
 });
 
-// Cleanup
-process.on('SIGINT', ()=>{
-    cleanup();
-    process.exit(1);
-});
