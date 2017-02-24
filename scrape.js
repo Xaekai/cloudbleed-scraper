@@ -1,11 +1,11 @@
 #!/bin/env node
 /*!
 **|  scrape.js 
-**|    A quick'n'dirty script to fetch HEADs from sites in domains.txt and determine if they are using cloudflare
+**|    A quick'n'dirty script to fetch HEADs from sites in domains.txt and determine if they are using Cloudflare
 **|
 **@author Xaekai
-**@copyright 2017
 **@license MIT
+**@copyright 2017
 */
 
 const fs = require('fs');
@@ -50,7 +50,10 @@ function scrapeWorker(){
     function onFinish(){
         if(domains.length){
             return process.nextTick(scrapeWorker); 
-        } else { return console.info('Worker finished.') }
+        } else { 
+            console.info('Worker finished.');
+            return finish();
+        }
     }
 
     function onProblem() {
@@ -59,13 +62,15 @@ function scrapeWorker(){
         onFinish();
     }
 
-    if(!domains.length){ return console.info('Worker finished.') }
+    if(!domains.length){ 
+        return onFinish();
+    }
     let domain = domains.shift();
     let issue = 0;
 
     // Blank line
     if(!domain.length){
-        return process.nextTick(scrapeWorker);
+        return onFinish();
     }
 
     console.info(`Checking ${domain}`)
@@ -96,12 +101,28 @@ function scrapeWorker(){
     .end();
 }
 
+function finish(){
+    workersDone++;
+    if(workersDone == numWorkers){
+        console.log('Complete');
+        cleanup();
+        process.exit(0);
+    }
+
+}
+
+function cleanup(){
+    positive.close();
+    negative.close();
+    uncheckt.close();
+}
 
 var positive = new fileWriter(path.join(path.resolve(process.cwd()), POSITIVE));
 var negative = new fileWriter(path.join(path.resolve(process.cwd()), NEGATIVE));
 var uncheckt = new fileWriter(path.join(path.resolve(process.cwd()), UNCHECKT));
 
 var domains = [];
+var workersDone = 0;
 
 console.log('Reading file');
 readline.createInterface({
@@ -129,7 +150,6 @@ readline.createInterface({
 
 // Cleanup
 process.on('SIGINT', ()=>{
-    positive.close();
-    negative.close();
-    uncheckt.close();
+    cleanup();
+    process.exit(1);
 });
